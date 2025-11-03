@@ -707,12 +707,12 @@ function populateModal(details) {
       }
     }
 
-    async function displayAgencyResults() {
+async function displayAgencyResults() {
       setLoading(true, 'Searching Agencies...');
       agencyGrid.innerHTML = '';
       const pickupAddress = tempBookingDetails.pickupAddress;
       try {
-        const response = await fetch(`${API_BASE}/api/search-rides?address=${encodeURIComponent(pickupAddress)}`);
+        const response = await fetch(`/api/search-rides?address=${encodeURIComponent(pickupAddress)}`);
         if (!response.ok) {
           let errorMsg = 'Could not find agency rides.';
           try {
@@ -731,7 +731,7 @@ function populateModal(details) {
         } else {
           agenciesWithVehicles.forEach((agency) => {
             const agencyCard = document.createElement('div');
-            agencyCard.className = 'border border-gray-200 rounded-lg shadow-sm overflow-hidden';
+            agencyCard.className = 'agency-card border border-gray-200 rounded-lg shadow-sm overflow-hidden';
             const header = document.createElement('div');
             header.className = 'p-3 bg-gray-50';
             const h3 = document.createElement('h3');
@@ -759,32 +759,62 @@ function populateModal(details) {
                 // --- END DISCOUNT LOGIC ---
 
                 const item = document.createElement('div');
-                item.className = 'vehicle-item flex justify-between items-center p-3 border-t border-gray-100';
+
+                // Dynamic background color based on AC type
+                const bgColor =
+                  vehicle.ac_type === 'AC'
+                    ? 'bg-green-50 hover:bg-green-100 border-green-200'
+                    : 'bg-blue-50 hover:bg-blue-100 border-blue-200';
+
+                item.className = `vehicle-item flex justify-between items-center p-4 mb-3 rounded-2xl shadow-sm transition duration-300 border ${bgColor}`;
+
+                // --- Left Side ---
                 const left = document.createElement('div');
                 left.className = 'flex-1';
-                left.innerHTML = `
-              <p class="font-semibold text-gray-800">${vehicle.vehicle_name || 'N/A'} (${vehicle.vehicle_type || 'N/A'})</p>
-              <p class="text-xs text-gray-500">Model: ${vehicle.model || 'N/A'} | Max: ${vehicle.max_capacity || 'N/A'} seats</p>
-            `;
-                const right = document.createElement('div');
-                right.className = 'text-right ml-2';
 
-                // --- UPDATED UI HERE ---
+                const acLabel =
+                  vehicle.ac_type === 'AC'
+                    ? '<span class="font-semibold text-green-700">(AC)</span>'
+                    : '<span class="font-semibold text-blue-700">(Non-AC)</span>';
+
+                left.innerHTML = `
+  <p class="font-semibold text-gray-900 text-base">
+    ${vehicle.vehicle_name || 'N/A'} 
+    <span class="text-sm text-gray-500 ml-1">(${vehicle.vehicle_type || 'N/A'})</span>
+  </p>
+  <p class="text-xs text-gray-600 mt-1">
+    ${acLabel}
+    <span class="ml-2">Model: ${vehicle.model || 'N/A'}</span> |
+    <span>Max: ${vehicle.max_capacity || 'N/A'} seats</span>
+  </p>
+`;
+
+                // --- Right Side ---
+                const right = document.createElement('div');
+                right.className = 'text-right ml-4';
+
                 right.innerHTML = `
-              <p class="font-bold text-lg text-gray-900">₹${finalFare.toFixed(0)}</p>
-              <p class="text-xs text-gray-500">
-                <span class="line-through">₹${basePrice.toFixed(0)}</span>
-                <span class="font-semibold text-green-600 ml-1">(${(discountPercentage * 100).toFixed(0)}% off)</span>
-              </p>
-              <button class="book-vehicle-btn mt-1 text-xs bg-green-600 text-white font-semibold py-1 px-3 rounded-full hover:bg-green-700"
-                data-agency-id="${agency._id}"
-                data-vehicle-id="${vehicle._id}"
-                data-fare="${finalFare.toFixed(0)}"
-                data-discount="${discountAmount.toFixed(2)}"
-                data-base-price="${basePrice.toFixed(0)}">
-                Book Now
-              </button>
-            `;
+  <p class="font-bold text-lg text-gray-900">₹${finalFare.toFixed(0)}</p>
+  <p class="text-xs text-gray-500">
+    <span class="line-through">₹${basePrice.toFixed(0)}</span>
+    <span class="font-semibold text-green-600 ml-1">
+      (${(discountPercentage * 100).toFixed(0)}% off)
+    </span>
+  </p>
+  <button
+    class="book-vehicle-btn mt-2 text-xs bg-green-600 text-white font-semibold py-1.5 px-4 rounded-full hover:bg-green-700 transition duration-300"
+    data-agency-id="${agency._id}"
+    data-vehicle-id="${vehicle._id}"
+    data-fare="${finalFare.toFixed(0)}"
+    data-discount="${discountAmount.toFixed(2)}"
+    data-base-price="${basePrice.toFixed(0)}">
+    Book Now
+  </button>
+`;
+
+                item.append(left, right);
+                vehiclesContainer.appendChild(item);
+
                 // --- END UPDATED UI ---
 
                 item.append(left, right);
@@ -809,6 +839,7 @@ function populateModal(details) {
         setLoading(false, 'Search Agency');
       }
     }
+
 
    // REPLACE your old fetchAndDisplaySharedRides function with this one
 async function fetchAndDisplaySharedRides(details) {
@@ -946,8 +977,7 @@ agencyGrid.addEventListener('click', async function (event) {
   
   const selectedButton = event.target;
   const vehicleItem = selectedButton.closest('.vehicle-item');
-  const agencyCard = selectedButton.closest('.border');
-
+  const agencyCard = selectedButton.closest('.agency-card');
   // Read data from the button and vehicle item
   const vehicleName = vehicleItem.querySelector('.font-semibold').textContent;
   const vehicleInfo = vehicleItem.querySelector('.text-xs').textContent;
