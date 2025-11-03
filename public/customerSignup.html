@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Signup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@400..800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #5b92e5;
+      --primary-dark: #3764b8;
+      --secondary-color: #f0f4f8;
+      --text-color: #333;
+      --border-color: #d1d9e6;
+      --background-color: #e6f0ff;
+      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--secondary-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: "Baloo Bhai 2", sans-serif;
+      font-weight: 600;
+    }
+
+    .container {
+      display: flex;
+      background: #ffffff;
+      box-shadow: var(--card-shadow);
+      border-radius: 20px;
+      overflow: hidden;
+      width: 900px;
+      max-width: 95%;
+      height: 600px;
+      border: none;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .image-section {
+      flex: 1;
+      background: url('blue2.jpg') no-repeat center center;
+      background-size: cover;
+      background-position: center;
+      border-radius: 20px 0 0 20px;
+    }
+
+    .form-section {
+      flex: 1.2;
+      padding: 40px;
+      background-color: var(--background-color);
+      overflow-y: auto;
+    }
+
+    .form-section::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .form-section::-webkit-scrollbar-thumb {
+      background-color: var(--primary-color);
+      border-radius: 10px;
+    }
+
+    h2 {
+      margin-bottom: 25px;
+      color: var(--primary-dark);
+      font-size: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      outline: none;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 8px rgba(91, 146, 229, 0.4);
+      transform: translateY(-2px);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 30px;
+      background: var(--primary-color);
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: "Baloo Bhai 2", sans-serif;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    button:disabled {
+      background: #b0b0b0;
+      cursor: not-allowed;
+    }
+
+    .message-field {
+      min-height: 25px;
+      margin-top: 5px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    .message-info {
+      color: var(--primary-dark);
+    }
+
+    .message-success {
+      color: green;
+    }
+
+    .message-error {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="image-section"></div>
+
+    <div class="form-section">
+      <h2>Create Account With Us</h2>
+
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="email" id="email" required />
+        <p id="email-message" class="message-field"></p>
+      </div>
+
+      <div class="form-group">
+        <label>Name:</label>
+        <input type="text" id="name" required />
+        <p id="name-message" class="message-field"></p>
+      </div>
+
+      <div class="form-group">
+        <label>Phone Number:</label>
+        <input type="tel" id="phone" required />
+        <p id="phone-message" class="message-field"></p>
+      </div>
+
+      <div class="form-group">
+        <label>Age:</label>
+        <input type="number" id="age" required />
+        <p id="age-message" class="message-field"></p>
+      </div>
+
+      <div class="form-group">
+        <label>Password:</label>
+        <input type="password" id="password" required />
+        <p id="password-message" class="message-field"></p>
+      </div>
+
+      <div class="form-group">
+        <label>Confirm Password:</label>
+        <input type="password" id="confirmPassword" required />
+        <p id="confirmPassword-message" class="message-field"></p>
+      </div>
+
+      <button id="generateOtpBtn" onclick="generateOTP()">Generate OTP</button>
+
+      <div id="otpSection" style="display:none;">
+        <div class="form-group">
+          <label>Enter OTP:</label>
+          <input type="text" id="otpInput" />
+          <p id="otp-message" class="message-field"></p>
+        </div>
+        <button onclick="validateOTP()">Validate OTP</button>
+        <button id="resendOtpBtn" onclick="resendOTP()" disabled>Resend OTP</button>
+      </div>
+
+      <a href="login.html">Already have an account? Click here</a>
+    </div>
+  </div>
+
+  <script>
+    // --- Change this depending on where you deploy your backend ---
+const API_BASE = "http://localhost:3000";
+
+    const getMsg = (id) => document.getElementById(`${id}-message`);
+    const showMsg = (id, text, type = 'info') => {
+      const el = getMsg(id);
+      if (el) {
+        el.textContent = text;
+        el.className = `message-field message-${type}`;
+      }
+    };
+    const clearMsgs = () => document.querySelectorAll('.message-field').forEach(e => e.textContent = '');
+
+    const validateEmail = (email) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+    const validatePassword = (p) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(p);
+
+    function startResendCooldown(seconds = 60) {
+      const btn = document.getElementById('resendOtpBtn');
+      btn.disabled = true;
+      let remain = seconds;
+      btn.textContent = `Resend OTP (${remain}s)`;
+      const timer = setInterval(() => {
+        remain--;
+        btn.textContent = `Resend OTP (${remain}s)`;
+        if (remain <= 0) {
+          clearInterval(timer);
+          btn.disabled = false;
+          btn.textContent = 'Resend OTP';
+        }
+      }, 1000);
+    }
+
+    async function sendOTP() {
+      const email = document.getElementById('email').value.trim();
+      if (!email || !validateEmail(email)) {
+        showMsg('email', 'Enter a valid email address.', 'error');
+        return;
+      }
+
+      showMsg('email', 'Sending OTP...', 'info');
+      try {
+        const res = await fetch(`${API_BASE}/generate-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showMsg('otp', 'OTP sent successfully! Check your email.', 'success');
+          startResendCooldown();
+        } else {
+          showMsg('email', data.message || 'Failed to send OTP.', 'error');
+        }
+      } catch {
+        showMsg('email', 'Server error while sending OTP.', 'error');
+      }
+    }
+
+    function generateOTP() {
+      clearMsgs();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirmPassword').value;
+
+      if (!name) return showMsg('name', 'Name is required.', 'error');
+      if (!validateEmail(email)) return showMsg('email', 'Invalid email format.', 'error');
+      if (!validatePassword(password)) return showMsg('password', 'Password must include uppercase, lowercase, number, and special character.', 'error');
+      if (password !== confirm) return showMsg('confirmPassword', 'Passwords do not match.', 'error');
+
+      document.getElementById('generateOtpBtn').disabled = true;
+      document.getElementById('otpSection').style.display = 'block';
+      sendOTP();
+    }
+
+    async function validateOTP() {
+      const email = document.getElementById('email').value.trim();
+      const username = document.getElementById('name').value.trim();
+      const password = document.getElementById('password').value;
+      const otp = document.getElementById('otpInput').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const age = document.getElementById('age').value.trim();
+
+      if (!otp) return showMsg('otp', 'Please enter the OTP.', 'error');
+      showMsg('otp', 'Validating OTP...', 'info');
+
+      try {
+        const res = await fetch(`${API_BASE}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, username, password, phone, age, otp })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showMsg('otp', 'Sign-up successful! Redirecting...', 'success');
+          setTimeout(() => (window.location.href = 'login.html'), 1500);
+        } else {
+          showMsg('otp', data.message || 'Invalid OTP or registration failed.', 'error');
+        }
+      } catch {
+        showMsg('otp', 'Server error during validation.', 'error');
+      }
+    }
+
+    function resendOTP() {
+      showMsg('otp', 'Sending new OTP...', 'info');
+      sendOTP();
+    }
+  </script>
+</body>
+
+</html>

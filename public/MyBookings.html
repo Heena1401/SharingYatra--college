@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Bookings - Sharing Yatra</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ... (all your existing sidebar/layout styles) ... */
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 3px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    #sidebar {
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    #sidebar .h-16 {
+      background: linear-gradient(to right, #2563eb, #4f46e5);
+    }
+
+    #sidebar .h-16 h1 {
+      color: white;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    #sidebar nav a {
+      transition: all 0.2s ease-in-out;
+      color: #4b5563;
+    }
+
+    #sidebar nav a:hover {
+      background-color: #f3f4f6;
+      color: #1f2937;
+      transform: translateX(4px);
+    }
+
+    #sidebar nav a.bg-gray-200 {
+      background: #eff6ff;
+      color: #2563eb;
+      font-weight: 600;
+      border-right: 4px solid #2563eb;
+    }
+
+    #sidebar nav a.bg-gray-200 svg {
+      color: #2563eb;
+    }
+
+    #logoutBtn:hover {
+      background-color: #ffebee;
+      color: #dc2626;
+      transform: translateX(4px);
+    }
+
+    #logoutBtn:hover svg {
+      color: #dc2626;
+    }
+
+    /* --- Styles for this Page --- */
+    .tab-btn {
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+      color: #6b7280;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: #374151;
+      border-bottom-color: #d1d5db;
+    }
+
+    .tab-btn.active-tab {
+      color: #2563eb;
+      border-bottom-color: #2563eb;
+    }
+
+    .booking-card {
+      background: #ffffff;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #f3f4f6;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .booking-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
+    }
+
+    /* --- NEW: Cancel Button Style --- */
+    .cancel-btn {
+      font-size: 0.75rem;
+      /* 12px */
+      font-weight: 500;
+      color: #991b1b;
+      /* red-800 */
+      background-color: #fef2f2;
+      /* red-50 */
+      border: 1px solid #fecaca;
+      /* red-200 */
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      /* rounded-full */
+      transition: all 0.2s;
+    }
+
+    .cancel-btn:hover {
+      background-color: #fee2e2;
+      /* red-100 */
+      color: #7f1d1d;
+      /* red-900 */
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);
+    }
+
+    .cancel-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* --- NEW: Cancel Modal Styles --- */
+    #cancelModal {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    #cancelModal.visible {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    #cancelModalPanel {
+      transform: scale(0.95);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    #cancelModal.visible #cancelModalPanel {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .modal-spinner {
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border-left-color: #dc2626;
+      /* red */
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100">
+  <div class="flex h-screen bg-gray-100">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 flex-shrink-0 bg-white shadow-lg hidden lg:flex flex-col">
+      <div class="h-16 flex items-center justify-center border-b">
+        <h1 class="text-2xl font-bold text-gray-800">Sharing Yatra</h1>
+      </div>
+      <nav class="flex-1 px-4 py-6 space-y-2">
+        <a href="/dashboard.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+            </path>
+          </svg>
+          Dashboard
+        </a>
+        <a href="booking.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Book a Ride
+        </a>
+        <a href="MyBookings.html"
+          class="flex items-center px-4 py-2 text-gray-700 bg-gray-200 rounded-lg font-semibold">
+          <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+            </path>
+          </svg>
+          My Bookings
+        </a>
+        <a href="EditProfile.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+          Profile
+        </a>
+      </nav>
+      <div class="px-4 py-6 border-t">
+        <a id="logoutBtn" href="/login.html"
+          class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+          <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+          Logout
+        </a>
+      </div>
+    </aside>
+
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Mobile Header -->
+      <header class="bg-white shadow-sm h-16 flex justify-between items-center px-4 lg:hidden">
+        <h1 class="text-2xl font-bold text-gray-800">Sharing Yatra</h1>
+        <button id="mobileToggle"
+          class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+          aria-label="Open sidebar">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        </button>
+      </header>
+
+      <!-- Main Content -->
+      <main class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
+
+        <h2 class="text-3xl font-bold text-gray-900 mb-6">My Bookings</h2>
+
+        <!-- Filter Tabs -->
+        <div id="filterTabs" class="flex space-x-1 border-b border-gray-200 mb-6">
+          <button data-status="all" class="tab-btn active-tab">All</button>
+          <button data-status="Pending" class="tab-btn">Pending</button>
+          <button data-status="Ongoing" class="tab-btn">Ongoing</button>
+          <button data-status="Approved" class="tab-btn">Approved</button>
+          <button data-status="Completed" class="tab-btn">Completed</button>
+          <button data-status="Cancelled" class="tab-btn">Cancelled</button>
+        </div>
+
+        <!-- Bookings List -->
+        <div id="bookingsListContainer" class="space-y-4">
+          <!-- Booking cards will be injected here by JavaScript -->
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="hidden text-center py-10">
+          <!-- ... (spinner svg) ... -->
+        </div>
+
+        <!-- No Bookings Message -->
+        <div id="noBookingsMessage" class="hidden text-center py-10">
+          <!-- ... (no bookings svg) ... -->
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- 
+    --- NEW: CANCELLATION MODAL --- 
+    This is hidden by default and shown with JavaScript
+  -->
+  <div id="cancelModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <!-- Overlay -->
+    <div id="cancelModalOverlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+    <!-- Panel -->
+    <div id="cancelModalPanel" class="relative w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden">
+
+      <!-- Header -->
+      <div class="flex items-start justify-between p-5 border-b border-gray-200">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900">Confirm Cancellation</h3>
+          <p class="text-sm text-gray-500">Are you sure you want to cancel?</p>
+        </div>
+        <button id="closeCancelModalBtn" type="button" class="text-gray-400 hover:text-gray-600 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-5">
+        <p class="text-sm text-gray-600">
+          You are about to cancel your booking
+          <strong id="cancelBookingIdText" class="font-mono text-gray-900">...</strong>.
+          This action cannot be undone.
+        </p>
+        <!-- Message area for errors -->
+        <div id="cancelModalMessage" class="hidden mt-3 p-3 text-sm rounded-lg bg-red-50 text-red-700"></div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-end gap-3 p-4 bg-gray-50 border-t border-gray-200">
+        <button id="keepBookingBtn" type="button"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          No, Keep It
+        </button>
+        <button id="confirmCancelBtn" type="button"
+          class="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 transition disabled:opacity-50">
+          <span id="confirmCancelText">Yes, Cancel</span>
+          <div id="confirmCancelSpinner" class="modal-spinner hidden ml-2"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- --- END OF CANCELLATION MODAL --- -->
+
+
+  <script>
+    // --- Element References ---
+    const bookingsListContainer = document.getElementById('bookingsListContainer');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const noBookingsMessage = document.getElementById('noBookingsMessage');
+    const filterTabsContainer = document.getElementById('filterTabs');
+    const tabs = filterTabsContainer.querySelectorAll('.tab-btn');
+
+    // --- NEW: Cancel Modal References ---
+    const cancelModal = document.getElementById('cancelModal');
+    const cancelModalOverlay = document.getElementById('cancelModalOverlay');
+    const cancelModalPanel = document.getElementById('cancelModalPanel');
+    const closeCancelModalBtn = document.getElementById('closeCancelModalBtn');
+    const keepBookingBtn = document.getElementById('keepBookingBtn');
+    const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+    const cancelBookingIdText = document.getElementById('cancelBookingIdText');
+    const cancelModalMessage = document.getElementById('cancelModalMessage');
+    const confirmCancelText = document.getElementById('confirmCancelText');
+    const confirmCancelSpinner = document.getElementById('confirmCancelSpinner');
+
+
+    // --- State ---
+    let currentFilter = 'all';
+    let bookingToCancel = null; // Store the _id of the booking to cancel
+
+    // --- NEW: Cancel Modal Functions ---
+    function showCancelModal(booking_id, bookingIdString) {
+      bookingToCancel = booking_id; // Set the _id to be cancelled
+      cancelBookingIdText.textContent = bookingIdString; // Show the "B0..." string
+      cancelModal.classList.add('visible');
+      cancelModalMessage.classList.add('hidden');
+    }
+
+    function closeCancelModal() {
+      bookingToCancel = null;
+      cancelModal.classList.remove('visible');
+      setCancelLoading(false); // Reset button
+    }
+
+    function setCancelLoading(isLoading) {
+      confirmCancelBtn.disabled = isLoading;
+      confirmCancelText.textContent = isLoading ? 'Cancelling...' : 'Yes, Cancel';
+      confirmCancelSpinner.classList.toggle('hidden', !isLoading);
+    }
+
+    function showCancelError(message) {
+      cancelModalMessage.textContent = message;
+      cancelModalMessage.classList.remove('hidden');
+    }
+
+    // --- Helper to capitalize first letter ---
+    function capitalizeFirstLetter(string) {
+      if (!string) return '';
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    // --- MODIFIED: Renders Booking Card with Cancel Button ---
+    function renderBookingCard(booking) {
+      const card = document.createElement('div');
+      card.className = 'booking-card p-5'; // Added padding class
+
+      // Status Badge
+      let badgeColor, badgeBg;
+      const status = booking.status ? booking.status.toLowerCase() : 'unknown';
+
+      switch (status) {
+        case "approved":
+        case "confirmed":
+          badgeColor = "text-green-700";
+          badgeBg = "bg-green-100";
+          break;
+        case "pending":
+          badgeColor = "text-yellow-700";
+          badgeBg = "bg-yellow-100";
+          break;
+        case "ongoing":
+          badgeColor = "text-pink-700";
+          badgeBg = "bg-pink-100";
+          break;
+        case "completed":
+          badgeColor = "text-gray-700";
+          badgeBg = "bg-gray-100";
+          break;
+        case "cancelled":
+          badgeColor = "text-red-700";
+          badgeBg = "bg-red-100";
+          break;
+        default:
+          badgeColor = "text-blue-700";
+          badgeBg = "bg-blue-100";
+      }
+
+      const statusBadge = document.createElement('span');
+      statusBadge.className = `text-xs font-medium px-3 py-1 rounded-full ${badgeBg} ${badgeColor}`;
+      statusBadge.textContent = capitalizeFirstLetter(booking.status || 'Unknown');
+
+      // Helper for creating text rows
+      function createRow(label, value, isBold = false) {
+        const p = document.createElement('p');
+        p.className = 'text-sm text-gray-500';
+        const labelSpan = document.createElement('span');
+        labelSpan.textContent = `${label}: `;
+        const valueSpan = document.createElement('span');
+        valueSpan.className = isBold ? 'font-medium text-gray-800' : 'text-gray-700';
+        valueSpan.textContent = value || 'N/A';
+        p.append(labelSpan, valueSpan);
+        return p;
+      }
+
+      // Card Header (Route + Status)
+      const header = document.createElement('div');
+      header.className = 'flex justify-between items-start mb-3';
+      const title = document.createElement('h3');
+      title.className = 'text-lg font-semibold text-gray-900';
+      title.textContent = `${booking.from || 'Start'} to ${booking.to || 'End'}`;
+      header.append(title, statusBadge);
+
+      // Card Body (Details)
+      const body = document.createElement('div');
+      body.className = 'grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2';
+
+      body.append(
+        createRow('Date', booking.date, true),
+        createRow('Departure Time', booking.stations[0]?.time || 'N/A', true),
+        createRow('Agency', booking.agencyId ? booking.agencyId.agencyName : 'N/A'),
+        createRow('Vehicle', booking.vehicleId ? booking.vehicleId.vehicle_name : 'N/A'),
+        createRow('Pickup', booking.pickupAddress),
+        createRow('Fare', `₹${booking.fare || '0'}`),
+        createRow('Booking ID', booking.bookingId)
+      );
+
+      // --- NEW: Add Cancel Button ---
+      const footer = document.createElement('div');
+      footer.className = 'pt-4 mt-4 border-t border-gray-100 text-right';
+
+      // Only show cancel button if the ride is 'pending' or 'approved'
+      if (status === 'pending' || status === 'approved' || status === 'confirmed') {
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'cancel-btn';
+        cancelBtn.textContent = 'Cancel Booking';
+        cancelBtn.dataset.id = booking._id; // The database primary key
+        cancelBtn.dataset.bookingid = booking.bookingId; // The "B0..." string for display
+        footer.appendChild(cancelBtn);
+      } else {
+        // Show nothing or a disabled button
+        footer.innerHTML = `<p class="text-xs text-gray-400 text-right italic">This booking cannot be cancelled.</p>`;
+      }
+
+      card.append(header, body, footer);
+      return card;
+    }
+
+    // --- Main Function to Load Bookings (Unchanged) ---
+    async function loadBookings(status) {
+      currentFilter = status;
+      bookingsListContainer.innerHTML = '';
+      loadingSpinner.classList.remove('hidden');
+      noBookingsMessage.classList.add('hidden');
+
+      tabs.forEach(tab => {
+        tab.classList.toggle('active-tab', tab.dataset.status === status);
+      });
+
+      try {
+        const statusParam = status.toLowerCase(); // a=All, p=Pending, etc.
+        const response = await fetch(`/api/my-bookings?status=${statusParam}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (response.status === 401) {
+          window.location.href = "/login.html";
+          return;
+        }
+
+        const data = await response.json();
+
+        if (data.success && data.bookings.length > 0) {
+          data.bookings.forEach(booking => {
+            const card = renderBookingCard(booking);
+            bookingsListContainer.appendChild(card);
+          });
+        } else {
+          noBookingsMessage.classList.remove('hidden');
+        }
+
+      } catch (err) {
+        console.error('Error loading bookings:', err);
+        noBookingsMessage.textContent = 'Error loading bookings. Please try again.';
+        noBookingsMessage.classList.remove('hidden');
+      } finally {
+        loadingSpinner.classList.add('hidden');
+      }
+    }
+
+    // --- Event Listener for Filter Tabs (Unchanged) ---
+    filterTabsContainer.addEventListener('click', (e) => {
+      if (e.target.classList.contains('tab-btn')) {
+        const newStatus = e.target.dataset.status;
+        if (newStatus !== currentFilter) {
+          loadBookings(newStatus);
+        }
+      }
+    });
+
+    // --- Mobile Toggle & Logout ---
+    function wireInteractions() {
+      // Mobile sidebar toggle
+      const toggle = document.getElementById("mobileToggle");
+      const sidebar = document.getElementById("sidebar");
+      if (toggle && sidebar) {
+        toggle.addEventListener("click", () => {
+          const isHidden = sidebar.classList.contains("hidden");
+          sidebar.classList.toggle("hidden", !isHidden);
+          sidebar.classList.toggle("flex", isHidden);
+        });
+      }
+
+      // Logout
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          try {
+            await fetch("/logout", { method: "POST", credentials: "include" });
+          } catch (_) { /* noop */ }
+          window.location.href = "/login.html";
+        });
+      }
+
+      // --- NEW: Event Listeners for Cancel Modal ---
+      cancelModalOverlay.addEventListener('click', closeCancelModal);
+      closeCancelModalBtn.addEventListener('click', closeCancelModal);
+      keepBookingBtn.addEventListener('click', closeCancelModal);
+
+      // --- NEW: Event Listener for Clicking "Cancel" on a card ---
+      bookingsListContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('cancel-btn')) {
+          const id = e.target.dataset.id;
+          const bookingIdString = e.target.dataset.bookingid;
+          showCancelModal(id, bookingIdString);
+        }
+      });
+
+      // --- NEW: Event Listener for Confirming Cancellation ---
+      confirmCancelBtn.addEventListener('click', async () => {
+        if (!bookingToCancel) return;
+
+        setCancelLoading(true);
+        showCancelError(''); // Clear previous errors
+
+        try {
+          const res = await fetch('/api/bookings/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Credentials': 'include' },
+            body: JSON.stringify({ bookingId: bookingToCancel })
+          });
+
+          const result = await res.json();
+
+          if (!res.ok) {
+            throw new Error(result.message || 'Failed to cancel.');
+          }
+
+          // Success!
+          closeCancelModal();
+          loadBookings(currentFilter); // Refresh the list
+
+        } catch (err) {
+          showCancelError(err.message);
+          setCancelLoading(false);
+        }
+      });
+    }
+
+    // --- Initialize Page ---
+    (async function init() {
+      wireInteractions();
+      await loadBookings('all'); // Load "All" bookings on page load
+    })();
+  </script>
+</body>
+
+</html>
