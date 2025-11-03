@@ -284,7 +284,8 @@
                 <div class="flex justify-between"><span class="text-gray-500">Email:</span><span
                     class="font-medium text-gray-800">Loading...</span></div>
               </div>
-              <a href="EditProfile.html" class="text-sm font-medium text-blue-600 hover:underline mt-6 block text-center">Edit
+              <a href="EditProfile.html"
+                class="text-sm font-medium text-blue-600 hover:underline mt-6 block text-center">Edit
                 Profile</a>
             </section>
           </div>
@@ -292,8 +293,8 @@
       </main>
     </div>
   </div>
-<script>
-  const API_BASE = "https://sharing-yatra-college.vercel.app";
+  <script>
+    const API_BASE = "https://sharing-yatra-college.vercel.app";
 
     // --- HELPER: Capitalizes the first letter of a string ---
     function capitalizeFirstLetter(string) {
@@ -316,7 +317,12 @@
     }
 
     // --- Loads Profile Summary & Welcome Title ---
-   Heena@123
+    async function loadProfile() {
+      try {
+        const res = await fetch(`${API_BASE}/api/profile`, {
+          method: "GET",
+          credentials: "include" // send session cookie
+        });
 
         if (res.status === 401) {
           window.location.href = "/login.html";
@@ -409,17 +415,17 @@
 
           const iconSpan = document.createElement("span");
           iconSpan.className = `flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${bg} ${color}`;
-          iconSpan.innerHTML = iconSvg; 
+          iconSpan.innerHTML = iconSvg;
 
           const textDiv = document.createElement("div");
 
           const pTitle = document.createElement("p");
           pTitle.className = "font-semibold text-gray-800";
-          pTitle.textContent = `${b.from || 'N/A'} to ${b.to || 'N/A'}`; 
+          pTitle.textContent = `${b.from || 'N/A'} to ${b.to || 'N/A'}`;
 
           const pSub = document.createElement("p");
           pSub.className = "text-sm text-gray-500";
-          pSub.textContent = `${b.date || 'No Date'} at ${b.time || 'No Time'}`; 
+          pSub.textContent = `${b.date || 'No Date'} at ${b.time || 'No Time'}`;
 
           textDiv.append(pTitle, pSub);
           leftDiv.append(iconSpan, textDiv);
@@ -428,7 +434,7 @@
           const rightSpan = document.createElement("span");
           rightSpan.className = `text-xs font-medium px-3 py-1 rounded-full ${badgeBg} ${badgeColor}`;
           // Use the helper function to capitalize the *original* status
-          rightSpan.textContent = capitalizeFirstLetter(b.status || 'Unknown'); 
+          rightSpan.textContent = capitalizeFirstLetter(b.status || 'Unknown');
 
           // Append all to main div
           div.append(leftDiv, rightSpan);
