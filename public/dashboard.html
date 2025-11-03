@@ -316,12 +316,7 @@
     }
 
     // --- Loads Profile Summary & Welcome Title ---
-    async function loadProfile() {
-      try {
-        const res = await fetch(`${API_BASE}/api/profile`, {
-          method: "GET",
-          credentials: "include" // send session cookie
-        });
+   Heena@123
 
         if (res.status === 401) {
           window.location.href = "/login.html";
