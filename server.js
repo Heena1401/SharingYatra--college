@@ -19,6 +19,12 @@ require("dotenv").config();
 
 const app = express();
 app.use(cors());
+
+app.use(cors({
+  origin: ["http://localhost:5000","https://sharing-yatra-college.vercel.app"], // <-- replace this
+  credentials: true
+}));
+
 // ====== Middleware ======
 // FIX: Use built-in Express parsers instead of deprecated body-parser
 app.use(express.json());

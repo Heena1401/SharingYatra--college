@@ -293,6 +293,8 @@
     </div>
   </div>
 <script>
+  const API_BASE = "https://sharing-yatra-college.vercel.app";
+
     // --- HELPER: Capitalizes the first letter of a string ---
     function capitalizeFirstLetter(string) {
       if (!string) return '';
@@ -316,7 +318,7 @@
     // --- Loads Profile Summary & Welcome Title ---
     async function loadProfile() {
       try {
-        const res = await fetch("/api/profile", {
+        const res = await fetch(`${API_BASE}/api/profile`, {
           method: "GET",
           credentials: "include" // send session cookie
         });
@@ -354,7 +356,7 @@
     // --- Loads Recent Bookings List ---
     async function loadRecentBookings() {
       try {
-        const res = await fetch("/api/recent-bookings", {
+        const res = await fetch(`${API_BASE}/api/recent-bookings`, {
           method: "GET",
           credentials: "include"
         });
@@ -463,7 +465,7 @@
         logoutBtn.addEventListener("click", async (e) => {
           e.preventDefault();
           try {
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch(`${API_BASE}/logout`, { method: "POST", credentials: "include" });
           } catch (_) { /* noop */ }
           window.location.href = "/login.html";
         });

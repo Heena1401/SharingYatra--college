@@ -343,6 +343,8 @@
 
 
   <script>
+    const API_BASE = "https://sharing-yatra-college.vercel.app";
+
     // --- Element References ---
     const bookingsListContainer = document.getElementById('bookingsListContainer');
     const loadingSpinner = document.getElementById('loadingSpinner');
@@ -507,7 +509,7 @@
 
       try {
         const statusParam = status.toLowerCase(); // a=All, p=Pending, etc.
-        const response = await fetch(`/api/my-bookings?status=${statusParam}`, {
+        const response = await fetch(`${API_BASE}/api/my-bookings?status=${statusParam}`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -566,7 +568,7 @@
         logoutBtn.addEventListener("click", async (e) => {
           e.preventDefault();
           try {
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch(`${API_BASE}/logout`, { method: "POST", credentials: "include" });
           } catch (_) { /* noop */ }
           window.location.href = "/login.html";
         });
@@ -594,7 +596,7 @@
         showCancelError(''); // Clear previous errors
 
         try {
-          const res = await fetch('/api/bookings/cancel', {
+          const res = await fetch(`${API_BASE}/api/bookings/cancel`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Credentials': 'include' },
             body: JSON.stringify({ bookingId: bookingToCancel })

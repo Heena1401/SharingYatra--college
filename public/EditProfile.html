@@ -367,6 +367,8 @@
     </div>
 
     <script>
+        const API_BASE = "https://sharing-yatra-college.vercel.app";
+        // const API_BASE = "http://localhost:5000";
         // --- Helper function for showing alerts ---
         function showAlert(message, type = 'error') {
             const alertBox = document.getElementById('alertMessage');
@@ -386,7 +388,7 @@
         // --- Load current profile data into the form ---
         async function loadProfileData() {
             try {
-                const res = await fetch("/api/profile", {
+                const res = await fetch(`${API_BASE}/api/profile`, {
                     method: "GET",
                     credentials: "include"
                 });

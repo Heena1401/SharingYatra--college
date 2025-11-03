@@ -569,6 +569,7 @@
     let calculatedDistance = 0;
     let tempBookingDetails = {};
     let tempSelectedVehicle = {};
+const API_BASE = "https://sharing-yatra-college.vercel.app";
 
     function getDiscountPercentage(distance) {
       if (distance <= 0) return 0;
@@ -687,7 +688,7 @@ function populateModal(details) {
       }
       distanceDisplay.textContent = 'Calculating...';
       try {
-        const response = await fetch(`/api/distance?from=${encodeURIComponent(fromValue)}&to=${encodeURIComponent(toValue)}`);
+        const response = await fetch(`${API_BASE}/api/distance?from=${encodeURIComponent(fromValue)}&to=${encodeURIComponent(toValue)}`);
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || 'Route not found.');
@@ -711,7 +712,7 @@ function populateModal(details) {
       agencyGrid.innerHTML = '';
       const pickupAddress = tempBookingDetails.pickupAddress;
       try {
-        const response = await fetch(`/api/search-rides?address=${encodeURIComponent(pickupAddress)}`);
+        const response = await fetch(`${API_BASE}/api/search-rides?address=${encodeURIComponent(pickupAddress)}`);
         if (!response.ok) {
           let errorMsg = 'Could not find agency rides.';
           try {
@@ -988,7 +989,7 @@ agencyGrid.addEventListener('click', async function (event) {
         ...tempSelectedVehicle
       };
       try {
-        const response = await fetch('/api/bookings', {
+        const response = await fetch(`${API_BASE}/api/bookings`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -1132,7 +1133,7 @@ document.addEventListener('click', async function (e) {
     };
     // --- END UPDATED PAYLOAD ---
 
-    const res = await fetch('/api/join-saved-ride', {
+    const res = await fetch(`${API_BASE}/api/join-saved-ride`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -1197,7 +1198,7 @@ document.addEventListener('click', async function (e) {
         logoutBtn.addEventListener("click", async (e) => {
           e.preventDefault();
           try {
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch(`${API_BASE}/logout`, { method: "POST", credentials: "include" });
           } catch (_) { /* noop */ }
           window.location.href = "/login.html";
         });
