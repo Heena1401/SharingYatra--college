@@ -11,13 +11,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    /* ... (all your existing styles, no changes needed) ... */
+    /* ... (all your existing sidebar/layout styles) ... */
     body {
       font-family: 'Inter', sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
-      /* IMPORTANT: Prevent body from horizontal scrolling */
+      /* FIX: Prevent body from horizontal scrolling */
       overflow-x: hidden;
     }
 
@@ -31,12 +31,11 @@
     .no-scrollbar {
       scrollbar-width: none;
     }
-    
+
     .custom-scrollbar::-webkit-scrollbar-track {
       background: #f1f5f9;
     }
-    
-    /* ... (rest of your styles are perfect) ... */
+
     .custom-scrollbar::-webkit-scrollbar-thumb {
       background: #94a3b8;
       border-radius: 3px;
@@ -100,9 +99,8 @@
       color: #6b7280;
       border-bottom: 2px solid transparent;
       transition: all 0.2s;
-      /* FIX 2: Add flex-none (or flex-shrink: 0) to stop tabs from shrinking */
+      /* FIX: Add flex-shrink: 0 to stop tabs from shrinking */
       flex-shrink: 0;
-      /* Add whitespace-nowrap to be extra safe */
       white-space: nowrap;
     }
 
@@ -132,18 +130,25 @@
     /* --- NEW: Cancel Button Style --- */
     .cancel-btn {
       font-size: 0.75rem;
+      /* 12px */
       font-weight: 500;
       color: #991b1b;
+      /* red-800 */
       background-color: #fef2f2;
+      /* red-50 */
       border: 1px solid #fecaca;
+      /* red-200 */
       padding: 0.25rem 0.75rem;
       border-radius: 9999px;
+      /* rounded-full */
       transition: all 0.2s;
     }
 
     .cancel-btn:hover {
       background-color: #fee2e2;
+      /* red-100 */
       color: #7f1d1d;
+      /* red-900 */
       box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);
     }
 
@@ -181,6 +186,7 @@
       height: 16px;
       border-radius: 50%;
       border-left-color: #dc2626;
+      /* red */
       animation: spin 1s linear infinite;
     }
 
@@ -271,7 +277,7 @@
           <button data-status="Pending" class="tab-btn">Pending</button>
           <button data-status="Ongoing" class="tab-btn">Ongoing</button>
           <button data-status="Approved" class="tab-btn">Approved</button>
-          <button data-status="cancelled" class="tab-btn">Cancelled</button>
+          <button data-status="Cancelled" class="tab-btn">Cancelled</button>
           <button data-status="Completed" class="tab-btn">Completed</button>
         </div>
 
@@ -279,10 +285,10 @@
           </div>
 
         <div id="loadingSpinner" class="hidden text-center py-10">
-        </div>
+          </div>
 
         <div id="noBookingsMessage" class="hidden text-center py-10">
-        </div>
+          </div>
 
       </main>
     </div>
@@ -324,14 +330,17 @@
     </div>
   </div>
   <script>
-    // --- Element References (unchanged) ---
+    // --- API_BASE Unchanged ---
+    const API_BASE = "https://sharing-yatra-college.vercel.app";
+
+    // --- Element References (Unchanged) ---
     const bookingsListContainer = document.getElementById('bookingsListContainer');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const noBookingsMessage = document.getElementById('noBookingsMessage');
     const filterTabsContainer = document.getElementById('filterTabs');
     const tabs = filterTabsContainer.querySelectorAll('.tab-btn');
 
-    // --- Cancel Modal References (unchanged) ---
+    // --- Cancel Modal References (Unchanged) ---
     const cancelModal = document.getElementById('cancelModal');
     const cancelModalOverlay = document.getElementById('cancelModalOverlay');
     const cancelModalPanel = document.getElementById('cancelModalPanel');
@@ -343,12 +352,11 @@
     const confirmCancelText = document.getElementById('confirmCancelText');
     const confirmCancelSpinner = document.getElementById('confirmCancelSpinner');
 
-
-    // --- State (unchanged) ---
+    // --- State (Unchanged) ---
     let currentFilter = 'all';
     let bookingToCancel = null; 
 
-    // --- Cancel Modal Functions (unchanged) ---
+    // --- Cancel Modal Functions (Unchanged) ---
     function showCancelModal(booking_id, bookingIdString) {
       bookingToCancel = booking_id; 
       cancelBookingIdText.textContent = bookingIdString; 
@@ -373,17 +381,16 @@
       cancelModalMessage.classList.remove('hidden');
     }
 
-    // --- Helper to capitalize first letter (unchanged) ---
+    // --- Helper to capitalize first letter (Unchanged) ---
     function capitalizeFirstLetter(string) {
       if (!string) return '';
       return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
-    // --- Renders Booking Card (unchanged) ---
+    // --- Renders Booking Card (Unchanged) ---
     function renderBookingCard(booking) {
       const card = document.createElement('div');
       card.className = 'booking-card p-5'; 
-
       let badgeColor, badgeBg;
       const status = booking.status ? booking.status.toLowerCase() : 'unknown';
 
@@ -467,7 +474,7 @@
       return card;
     }
 
-    // --- Main Function to Load Bookings (Unchanged) ---
+    // --- Load Bookings (Unchanged, respects API_BASE) ---
     async function loadBookings(status) {
       currentFilter = status;
       bookingsListContainer.innerHTML = '';
@@ -480,7 +487,7 @@
 
       try {
         const statusParam = status.toLowerCase(); 
-        const response = await fetch(`/api/my-bookings?status=${statusParam}`, {
+        const response = await fetch(`${API_BASE}/api/my-bookings?status=${statusParam}`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -520,7 +527,9 @@
       }
     });
 
-    // --- Mobile Toggle & Logout (from previous fix) ---
+    // --- 
+    // FIX 4 (JavaScript): Replaced with responsive overlay drawer logic
+    // ---
     function wireInteractions() {
       // --- NEW: Mobile Sidebar Toggle Logic ---
       const toggleBtn = document.getElementById("mobileToggle");
@@ -528,16 +537,17 @@
       const backdrop = document.getElementById("sidebarBackdrop");
 
       function openSidebar() {
-        sidebar.classList.remove("-translate-x-full"); 
-        backdrop.classList.remove("hidden"); 
+        sidebar.classList.remove("-translate-x-full"); // Slides sidebar in
+        backdrop.classList.remove("hidden"); // Shows backdrop
       }
 
       function closeSidebar() {
-        sidebar.classList.add("-translate-x-full"); 
-        backdrop.classList.add("hidden"); 
+        sidebar.classList.add("-translate-x-full"); // Slides sidebar out
+        backdrop.classList.add("hidden"); // Hides backdrop
       }
 
       if (toggleBtn && sidebar && backdrop) {
+        // Toggle button click
         toggleBtn.addEventListener("click", () => {
           const isOpen = !sidebar.classList.contains("-translate-x-full");
           if (isOpen) {
@@ -546,16 +556,17 @@
             openSidebar();
           }
         });
+        // Backdrop click
         backdrop.addEventListener("click", closeSidebar);
       }
 
-      // --- Logout (Unchanged) ---
+      // --- Logout (Unchanged, respects API_BASE) ---
       const logoutBtn = document.getElementById("logoutBtn");
       if (logoutBtn) {
         logoutBtn.addEventListener("click", async (e) => {
           e.preventDefault();
           try {
-            await fetch("/logout", { method: "POST", credentials: "include" });
+            await fetch(`${API_BASE}/logout`, { method: "POST", credentials: "include" });
           } catch (_) { /* noop */ }
           window.location.href = "/login.html";
         });
@@ -575,15 +586,15 @@
         }
       });
 
-      // --- Event Listener for Confirming Cancellation (Unchanged) ---
+      // --- Event Listener for Confirming Cancellation (Unchanged, respects API_BASE) ---
       confirmCancelBtn.addEventListener('click', async () => {
         if (!bookingToCancel) return;
 
         setCancelLoading(true);
-        showCancelError(''); 
+        showCancelError(''); // Clear previous errors
 
         try {
-          const res = await fetch('/api/bookings/cancel', {
+          const res = await fetch(`${API_BASE}/api/bookings/cancel`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Credentials': 'include' },
             body: JSON.stringify({ bookingId: bookingToCancel })
@@ -595,8 +606,9 @@
             throw new Error(result.message || 'Failed to cancel.');
           }
 
+          // Success!
           closeCancelModal();
-          loadBookings(currentFilter); 
+          loadBookings(currentFilter); // Refresh the list
 
         } catch (err) {
           showCancelError(err.message);
@@ -608,7 +620,7 @@
     // --- Initialize Page (Unchanged) ---
     (async function init() {
       wireInteractions();
-      await loadBookings('all'); 
+      await loadBookings('all'); // Load "All" bookings on page load
     })();
   </script>
 </body>
