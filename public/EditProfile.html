@@ -184,7 +184,8 @@
 <body class="bg-gray-100">
     <div class="flex h-screen bg-gray-100">
 
-        <aside id="sidebar" class="w-64 flex-shrink-0 bg-white shadow-lg hidden lg:flex flex-col">
+        <aside id="sidebar"
+            class="w-64 flex-shrink-0 bg-white shadow-lg flex flex-col fixed inset-y-0 left-0 z-30 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static">
             <div class="h-16 flex items-center justify-center border-b">
                 <h1 class="text-2xl font-bold text-gray-800">Sharing Yatra</h1>
             </div>
@@ -236,6 +237,8 @@
             </div>
         </aside>
 
+        <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
+
         <div class="flex-1 flex flex-col overflow-hidden">
             <header class="bg-white shadow-sm h-16 flex justify-between items-center px-4 lg:hidden">
                 <h1 class="text-2xl font-bold text-gray-800">Sharing Yatra</h1>
@@ -253,8 +256,6 @@
                 <div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-8 profile-card">
 
                     <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center animated-gradient">Edit Profile</h2>
-
-                    <!-- <div id="alertMessage" class="hidden mb-4 p-3 rounded-lg text-sm"></div> -->
 
                     <form id="editProfileForm" class="space-y-5">
                         <div>
@@ -369,6 +370,7 @@
     <script>
         const API_BASE = "https://sharing-yatra-college.vercel.app";
         // const API_BASE = "http://localhost:5000";
+
         // --- Helper function for showing alerts ---
         function showAlert(message, type = 'error') {
             const alertBox = document.getElementById('alertMessage');
@@ -425,7 +427,8 @@
             if (!data.newPassword) delete data.newPassword;
 
             try {
-                const res = await fetch('/api/profile', {
+                // --- FIX: Use API_BASE variable ---
+                const res = await fetch(`${API_BASE}/api/profile`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
@@ -447,24 +450,47 @@
             }
         }
 
-        // --- Mobile Toggle & Logout ---
+        // --- 
+        // FIX 3: Replaced with responsive sidebar JavaScript
+        // ---
         function wireInteractions() {
-            const toggle = document.getElementById("mobileToggle");
+            // --- NEW: Mobile Sidebar Toggle Logic ---
+            const toggleBtn = document.getElementById("mobileToggle");
             const sidebar = document.getElementById("sidebar");
-            if (toggle && sidebar) {
-                toggle.addEventListener("click", () => {
-                    const isHidden = sidebar.classList.contains("hidden");
-                    sidebar.classList.toggle("hidden", !isHidden);
-                    sidebar.classList.toggle("flex", isHidden);
-                });
+            const backdrop = document.getElementById("sidebarBackdrop");
+
+            function openSidebar() {
+                sidebar.classList.remove("-translate-x-full"); // Slides sidebar in
+                backdrop.classList.remove("hidden"); // Shows backdrop
             }
 
+            function closeSidebar() {
+                sidebar.classList.add("-translate-x-full"); // Slides sidebar out
+                backdrop.classList.add("hidden"); // Hides backdrop
+            }
+
+            if (toggleBtn && sidebar && backdrop) {
+                // Toggle button click
+                toggleBtn.addEventListener("click", () => {
+                    const isOpen = !sidebar.classList.contains("-translate-x-full");
+                    if (isOpen) {
+                        closeSidebar();
+                    } else {
+                        openSidebar();
+                    }
+                });
+                // Backdrop click
+                backdrop.addEventListener("click", closeSidebar);
+            }
+
+            // --- EXISTING LOGIC (Logout, Form Submit, Password Toggles) ---
             const logoutBtn = document.getElementById("logoutBtn");
             if (logoutBtn) {
                 logoutBtn.addEventListener("click", async (e) => {
                     e.preventDefault();
                     try {
-                        await fetch("/logout", { method: "POST", credentials: "include" });
+                        // --- FIX: Use API_BASE variable ---
+                        await fetch(`${API_BASE}/logout`, { method: "POST", credentials: "include" });
                     } catch (_) { /* noop */ }
                     window.location.href = "/login.html";
                 });
@@ -474,6 +500,7 @@
             if (profileForm) {
                 profileForm.addEventListener('submit', handleFormSubmit);
             }
+
             function setupPasswordToggle(inputId, toggleButtonId, eyeIconId, eyeSlashedIconId) {
                 const input = document.getElementById(inputId);
                 const toggleButton = document.getElementById(toggleButtonId);
@@ -509,8 +536,6 @@
                 'eyeIconNew',
                 'eyeSlashedIconNew'
             );
-
-            //
         }
 
         // --- Initialize Page ---
