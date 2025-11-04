@@ -183,7 +183,9 @@
 
 <body class="bg-gray-100">
   <div class="flex h-screen bg-gray-100">
-    <aside id="sidebar" class="w-64 flex-shrink-0 bg-white shadow-lg hidden lg:flex flex-col">
+
+    <aside id="sidebar"
+      class="w-64 flex-shrink-0 bg-white shadow-lg flex flex-col fixed inset-y-0 left-0 z-30 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static">
       <div class="h-16 flex items-center justify-center border-b">
         <h1 class="text-2xl font-bold text-gray-800">Sharing Yatra</h1>
       </div>
@@ -232,6 +234,9 @@
       </div>
     </aside>
 
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
+
+
     <div class="flex-1 flex flex-col overflow-hidden">
       <header class="bg-white shadow-sm h-16 flex justify-between items-center px-4 lg:hidden">
         <h1 class="text-2xl font-bold text-gray-800">Sharing Yatra</h1>
@@ -260,7 +265,7 @@
               </a>
             </div>
             <div id="bookingsList" class="space-y-3">
-            </div>
+              </div>
             <div class="text-center mt-6">
               <a href="MyBookings.html" class="text-blue-600 text-sm font-medium hover:underline">
                 View all bookings
@@ -294,6 +299,7 @@
     </div>
   </div>
   <script>
+    // --- URL unchanged, as requested ---
     const API_BASE = "https://sharing-yatra-college.vercel.app";
 
     // --- HELPER: Capitalizes the first letter of a string ---
@@ -374,11 +380,8 @@
 
         data.bookings.forEach((b) => {
           let iconSvg, color, bg, badgeColor, badgeBg;
-
-          // --- FIX: Convert status to lowercase for reliable matching ---
           const status = b.status ? b.status.toLowerCase() : '';
 
-          // Define SVG icons and colors for each status
           switch (status) {
             case "approved":
             case "confirmed":
@@ -402,41 +405,28 @@
               bg = "bg-blue-100";
           }
 
-          // Use the same colors for the badge
           badgeColor = color;
           badgeBg = bg;
 
           const div = document.createElement("div");
           div.className = "flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition";
-
-          // Build Left Side
           const leftDiv = document.createElement("div");
           leftDiv.className = "flex items-center gap-3";
-
           const iconSpan = document.createElement("span");
           iconSpan.className = `flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${bg} ${color}`;
           iconSpan.innerHTML = iconSvg;
-
           const textDiv = document.createElement("div");
-
           const pTitle = document.createElement("p");
           pTitle.className = "font-semibold text-gray-800";
           pTitle.textContent = `${b.from || 'N/A'} to ${b.to || 'N/A'}`;
-
           const pSub = document.createElement("p");
           pSub.className = "text-sm text-gray-500";
           pSub.textContent = `${b.date || 'No Date'} at ${b.time || 'No Time'}`;
-
           textDiv.append(pTitle, pSub);
           leftDiv.append(iconSpan, textDiv);
-
-          // Build Right Side (Badge)
           const rightSpan = document.createElement("span");
           rightSpan.className = `text-xs font-medium px-3 py-1 rounded-full ${badgeBg} ${badgeColor}`;
-          // Use the helper function to capitalize the *original* status
           rightSpan.textContent = capitalizeFirstLetter(b.status || 'Unknown');
-
-          // Append all to main div
           div.append(leftDiv, rightSpan);
           list.appendChild(div);
         });
@@ -447,33 +437,58 @@
       }
     }
 
-    // --- Handles Sidebar Toggle and Logout ---
+    // --- 
+    // FIX 3: Updated wireInteractions function
+    // This now controls the sidebar's 'transform' and the backdrop's 'hidden' class.
+    // The old logic was removed and replaced.
+    // ---
     function wireInteractions() {
-      // Mobile sidebar toggle
-      const toggle = document.getElementById("mobileToggle");
+      // --- NEW: Mobile Sidebar Toggle Logic ---
+      const toggleBtn = document.getElementById("mobileToggle");
       const sidebar = document.getElementById("sidebar");
-      if (toggle && sidebar) {
-        toggle.addEventListener("click", () => {
-          const isHidden = sidebar.classList.contains("hidden");
-          sidebar.classList.toggle("hidden", !isHidden);
-          sidebar.classList.toggle("flex", isHidden);
-        });
+      const backdrop = document.getElementById("sidebarBackdrop");
+
+      function openSidebar() {
+        sidebar.classList.remove("-translate-x-full"); // Slides sidebar in
+        backdrop.classList.remove("hidden"); // Shows backdrop
       }
 
-      // Logout
+      function closeSidebar() {
+        sidebar.classList.add("-translate-x-full"); // Slides sidebar out
+        backdrop.classList.add("hidden"); // Hides backdrop
+      }
+
+      if (toggleBtn && sidebar && backdrop) {
+        // Toggle button click
+        toggleBtn.addEventListener("click", () => {
+          const isOpen = !sidebar.classList.contains("-translate-x-full");
+          if (isOpen) {
+            closeSidebar();
+          } else {
+            openSidebar();
+          }
+        });
+        // Backdrop click
+        backdrop.addEventListener("click", closeSidebar);
+      }
+
+      // --- Logout (Unchanged, respects your API_BASE) ---
       const logoutBtn = document.getElementById("logoutBtn");
       if (logoutBtn) {
         logoutBtn.addEventListener("click", async (e) => {
           e.preventDefault();
           try {
-            await fetch(`${API_BASE}/logout`, { method: "POST", credentials: "include" });
+            await fetch(`${API_BASE}/logout`, {
+              method: "POST",
+              credentials: "include"
+            });
           } catch (_) { /* noop */ }
           window.location.href = "/login.html";
         });
       }
     }
 
-    // --- Initialize Page ---
+    // --- Initialize Page (Unchanged) ---
     (async function init() {
       wireInteractions();
       await loadProfile();
