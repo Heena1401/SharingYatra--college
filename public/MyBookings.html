@@ -11,22 +11,32 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    /* ... (all your existing sidebar/layout styles) ... */
+    /* ... (all your existing styles, no changes needed) ... */
     body {
       font-family: 'Inter', sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
+      /* IMPORTANT: Prevent body from horizontal scrolling */
+      overflow-x: hidden;
     }
 
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
+      /* FIX: Make horizontal scrollbar on tabs invisible */
+      height: 0;
     }
 
+    /* FIX: Add this for Firefox */
+    .no-scrollbar {
+      scrollbar-width: none;
+    }
+    
     .custom-scrollbar::-webkit-scrollbar-track {
       background: #f1f5f9;
     }
-
+    
+    /* ... (rest of your styles are perfect) ... */
     .custom-scrollbar::-webkit-scrollbar-thumb {
       background: #94a3b8;
       border-radius: 3px;
@@ -90,6 +100,10 @@
       color: #6b7280;
       border-bottom: 2px solid transparent;
       transition: all 0.2s;
+      /* FIX 2: Add flex-none (or flex-shrink: 0) to stop tabs from shrinking */
+      flex-shrink: 0;
+      /* Add whitespace-nowrap to be extra safe */
+      white-space: nowrap;
     }
 
     .tab-btn:hover {
@@ -118,25 +132,18 @@
     /* --- NEW: Cancel Button Style --- */
     .cancel-btn {
       font-size: 0.75rem;
-      /* 12px */
       font-weight: 500;
       color: #991b1b;
-      /* red-800 */
       background-color: #fef2f2;
-      /* red-50 */
       border: 1px solid #fecaca;
-      /* red-200 */
       padding: 0.25rem 0.75rem;
       border-radius: 9999px;
-      /* rounded-full */
       transition: all 0.2s;
     }
 
     .cancel-btn:hover {
       background-color: #fee2e2;
-      /* red-100 */
       color: #7f1d1d;
-      /* red-900 */
       box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);
     }
 
@@ -174,7 +181,6 @@
       height: 16px;
       border-radius: 50%;
       border-left-color: #dc2626;
-      /* red */
       animation: spin 1s linear infinite;
     }
 
@@ -190,11 +196,11 @@
   </style>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-100 overflow-x-hidden">
   <div class="flex h-screen bg-gray-100">
 
-    <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 flex-shrink-0 bg-white shadow-lg hidden lg:flex flex-col">
+    <aside id="sidebar"
+      class="w-64 flex-shrink-0 bg-white shadow-lg flex flex-col fixed inset-y-0 left-0 z-30 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static">
       <div class="h-16 flex items-center justify-center border-b">
         <h1 class="text-2xl font-bold text-gray-800">Sharing Yatra</h1>
       </div>
@@ -213,8 +219,7 @@
           </svg>
           Book a Ride
         </a>
-        <a href="MyBookings.html"
-          class="flex items-center px-4 py-2 text-gray-700 bg-gray-200 rounded-lg font-semibold">
+        <a href="MyBookings.html" class="flex items-center px-4 py-2 text-gray-700 bg-gray-200 rounded-lg font-semibold">
           <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
@@ -231,8 +236,7 @@
         </a>
       </nav>
       <div class="px-4 py-6 border-t">
-        <a id="logoutBtn" href="/login.html"
-          class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+        <a id="logoutBtn" href="/login.html" class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">
           <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
@@ -242,9 +246,10 @@
       </div>
     </aside>
 
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
+
 
     <div class="flex-1 flex flex-col overflow-hidden">
-      <!-- Mobile Header -->
       <header class="bg-white shadow-sm h-16 flex justify-between items-center px-4 lg:hidden">
         <h1 class="text-2xl font-bold text-gray-800">Sharing Yatra</h1>
         <button id="mobileToggle"
@@ -256,13 +261,12 @@
         </button>
       </header>
 
-      <!-- Main Content -->
       <main class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
 
         <h2 class="text-3xl font-bold text-gray-900 mb-6">My Bookings</h2>
 
-        <!-- Filter Tabs -->
-        <div id="filterTabs" class="flex space-x-1 border-b border-gray-200 mb-6">
+        <div id="filterTabs"
+          class="flex space-x-1 border-b border-gray-200 mb-6 flex-nowrap overflow-x-auto custom-scrollbar no-scrollbar">
           <button data-status="all" class="tab-btn active-tab">All</button>
           <button data-status="Pending" class="tab-btn">Pending</button>
           <button data-status="Ongoing" class="tab-btn">Ongoing</button>
@@ -271,37 +275,22 @@
           <button data-status="Completed" class="tab-btn">Completed</button>
         </div>
 
-        <!-- Bookings List -->
         <div id="bookingsListContainer" class="space-y-4">
-          <!-- Booking cards will be injected here by JavaScript -->
-        </div>
+          </div>
 
-        <!-- Loading Spinner -->
         <div id="loadingSpinner" class="hidden text-center py-10">
-          <!-- ... (spinner svg) ... -->
         </div>
 
-        <!-- No Bookings Message -->
         <div id="noBookingsMessage" class="hidden text-center py-10">
-          <!-- ... (no bookings svg) ... -->
         </div>
 
       </main>
     </div>
   </div>
 
-  <!-- 
-    --- NEW: CANCELLATION MODAL --- 
-    This is hidden by default and shown with JavaScript
-  -->
   <div id="cancelModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <!-- Overlay -->
     <div id="cancelModalOverlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-
-    <!-- Panel -->
     <div id="cancelModalPanel" class="relative w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden">
-
-      <!-- Header -->
       <div class="flex items-start justify-between p-5 border-b border-gray-200">
         <div>
           <h3 class="text-lg font-semibold text-gray-900">Confirm Cancellation</h3>
@@ -313,19 +302,14 @@
           </svg>
         </button>
       </div>
-
-      <!-- Body -->
       <div class="p-5">
         <p class="text-sm text-gray-600">
           You are about to cancel your booking
           <strong id="cancelBookingIdText" class="font-mono text-gray-900">...</strong>.
           This action cannot be undone.
         </p>
-        <!-- Message area for errors -->
         <div id="cancelModalMessage" class="hidden mt-3 p-3 text-sm rounded-lg bg-red-50 text-red-700"></div>
       </div>
-
-      <!-- Footer -->
       <div class="flex items-center justify-end gap-3 p-4 bg-gray-50 border-t border-gray-200">
         <button id="keepBookingBtn" type="button"
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
@@ -339,20 +323,15 @@
       </div>
     </div>
   </div>
-  <!-- --- END OF CANCELLATION MODAL --- -->
-
-
   <script>
-    const API_BASE = "https://sharing-yatra-college.vercel.app";
-
-    // --- Element References ---
+    // --- Element References (unchanged) ---
     const bookingsListContainer = document.getElementById('bookingsListContainer');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const noBookingsMessage = document.getElementById('noBookingsMessage');
     const filterTabsContainer = document.getElementById('filterTabs');
     const tabs = filterTabsContainer.querySelectorAll('.tab-btn');
 
-    // --- NEW: Cancel Modal References ---
+    // --- Cancel Modal References (unchanged) ---
     const cancelModal = document.getElementById('cancelModal');
     const cancelModalOverlay = document.getElementById('cancelModalOverlay');
     const cancelModalPanel = document.getElementById('cancelModalPanel');
@@ -365,14 +344,14 @@
     const confirmCancelSpinner = document.getElementById('confirmCancelSpinner');
 
 
-    // --- State ---
+    // --- State (unchanged) ---
     let currentFilter = 'all';
-    let bookingToCancel = null; // Store the _id of the booking to cancel
+    let bookingToCancel = null; 
 
-    // --- NEW: Cancel Modal Functions ---
+    // --- Cancel Modal Functions (unchanged) ---
     function showCancelModal(booking_id, bookingIdString) {
-      bookingToCancel = booking_id; // Set the _id to be cancelled
-      cancelBookingIdText.textContent = bookingIdString; // Show the "B0..." string
+      bookingToCancel = booking_id; 
+      cancelBookingIdText.textContent = bookingIdString; 
       cancelModal.classList.add('visible');
       cancelModalMessage.classList.add('hidden');
     }
@@ -380,7 +359,7 @@
     function closeCancelModal() {
       bookingToCancel = null;
       cancelModal.classList.remove('visible');
-      setCancelLoading(false); // Reset button
+      setCancelLoading(false); 
     }
 
     function setCancelLoading(isLoading) {
@@ -394,18 +373,17 @@
       cancelModalMessage.classList.remove('hidden');
     }
 
-    // --- Helper to capitalize first letter ---
+    // --- Helper to capitalize first letter (unchanged) ---
     function capitalizeFirstLetter(string) {
       if (!string) return '';
       return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
-    // --- MODIFIED: Renders Booking Card with Cancel Button ---
+    // --- Renders Booking Card (unchanged) ---
     function renderBookingCard(booking) {
       const card = document.createElement('div');
-      card.className = 'booking-card p-5'; // Added padding class
+      card.className = 'booking-card p-5'; 
 
-      // Status Badge
       let badgeColor, badgeBg;
       const status = booking.status ? booking.status.toLowerCase() : 'unknown';
 
@@ -439,7 +417,6 @@
       statusBadge.className = `text-xs font-medium px-3 py-1 rounded-full ${badgeBg} ${badgeColor}`;
       statusBadge.textContent = capitalizeFirstLetter(booking.status || 'Unknown');
 
-      // Helper for creating text rows
       function createRow(label, value, isBold = false) {
         const p = document.createElement('p');
         p.className = 'text-sm text-gray-500';
@@ -452,7 +429,6 @@
         return p;
       }
 
-      // Card Header (Route + Status)
       const header = document.createElement('div');
       header.className = 'flex justify-between items-start mb-3';
       const title = document.createElement('h3');
@@ -460,7 +436,6 @@
       title.textContent = `${booking.from || 'Start'} to ${booking.to || 'End'}`;
       header.append(title, statusBadge);
 
-      // Card Body (Details)
       const body = document.createElement('div');
       body.className = 'grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2';
 
@@ -474,20 +449,17 @@
         createRow('Booking ID', booking.bookingId)
       );
 
-      // --- NEW: Add Cancel Button ---
       const footer = document.createElement('div');
       footer.className = 'pt-4 mt-4 border-t border-gray-100 text-right';
 
-      // Only show cancel button if the ride is 'pending' or 'approved'
       if (status === 'pending' || status === 'approved' || status === 'confirmed') {
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'cancel-btn';
         cancelBtn.textContent = 'Cancel Booking';
-        cancelBtn.dataset.id = booking._id; // The database primary key
-        cancelBtn.dataset.bookingid = booking.bookingId; // The "B0..." string for display
+        cancelBtn.dataset.id = booking._id; 
+        cancelBtn.dataset.bookingid = booking.bookingId; 
         footer.appendChild(cancelBtn);
       } else {
-        // Show nothing or a disabled button
         footer.innerHTML = `<p class="text-xs text-gray-400 text-right italic">This booking cannot be cancelled.</p>`;
       }
 
@@ -507,8 +479,8 @@
       });
 
       try {
-        const statusParam = status.toLowerCase(); // a=All, p=Pending, etc.
-        const response = await fetch(`${API_BASE}/api/my-bookings?status=${statusParam}`, {
+        const statusParam = status.toLowerCase(); 
+        const response = await fetch(`/api/my-bookings?status=${statusParam}`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -548,37 +520,53 @@
       }
     });
 
-    // --- Mobile Toggle & Logout ---
+    // --- Mobile Toggle & Logout (from previous fix) ---
     function wireInteractions() {
-      // Mobile sidebar toggle
-      const toggle = document.getElementById("mobileToggle");
+      // --- NEW: Mobile Sidebar Toggle Logic ---
+      const toggleBtn = document.getElementById("mobileToggle");
       const sidebar = document.getElementById("sidebar");
-      if (toggle && sidebar) {
-        toggle.addEventListener("click", () => {
-          const isHidden = sidebar.classList.contains("hidden");
-          sidebar.classList.toggle("hidden", !isHidden);
-          sidebar.classList.toggle("flex", isHidden);
-        });
+      const backdrop = document.getElementById("sidebarBackdrop");
+
+      function openSidebar() {
+        sidebar.classList.remove("-translate-x-full"); 
+        backdrop.classList.remove("hidden"); 
       }
 
-      // Logout
+      function closeSidebar() {
+        sidebar.classList.add("-translate-x-full"); 
+        backdrop.classList.add("hidden"); 
+      }
+
+      if (toggleBtn && sidebar && backdrop) {
+        toggleBtn.addEventListener("click", () => {
+          const isOpen = !sidebar.classList.contains("-translate-x-full");
+          if (isOpen) {
+            closeSidebar();
+          } else {
+            openSidebar();
+          }
+        });
+        backdrop.addEventListener("click", closeSidebar);
+      }
+
+      // --- Logout (Unchanged) ---
       const logoutBtn = document.getElementById("logoutBtn");
       if (logoutBtn) {
         logoutBtn.addEventListener("click", async (e) => {
           e.preventDefault();
           try {
-            await fetch(`${API_BASE}/logout`, { method: "POST", credentials: "include" });
+            await fetch("/logout", { method: "POST", credentials: "include" });
           } catch (_) { /* noop */ }
           window.location.href = "/login.html";
         });
       }
 
-      // --- NEW: Event Listeners for Cancel Modal ---
+      // --- Event Listeners for Cancel Modal (Unchanged) ---
       cancelModalOverlay.addEventListener('click', closeCancelModal);
       closeCancelModalBtn.addEventListener('click', closeCancelModal);
       keepBookingBtn.addEventListener('click', closeCancelModal);
 
-      // --- NEW: Event Listener for Clicking "Cancel" on a card ---
+      // --- Event Listener for Clicking "Cancel" on a card (Unchanged) ---
       bookingsListContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('cancel-btn')) {
           const id = e.target.dataset.id;
@@ -587,15 +575,15 @@
         }
       });
 
-      // --- NEW: Event Listener for Confirming Cancellation ---
+      // --- Event Listener for Confirming Cancellation (Unchanged) ---
       confirmCancelBtn.addEventListener('click', async () => {
         if (!bookingToCancel) return;
 
         setCancelLoading(true);
-        showCancelError(''); // Clear previous errors
+        showCancelError(''); 
 
         try {
-          const res = await fetch(`${API_BASE}/api/bookings/cancel`, {
+          const res = await fetch('/api/bookings/cancel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Credentials': 'include' },
             body: JSON.stringify({ bookingId: bookingToCancel })
@@ -607,9 +595,8 @@
             throw new Error(result.message || 'Failed to cancel.');
           }
 
-          // Success!
           closeCancelModal();
-          loadBookings(currentFilter); // Refresh the list
+          loadBookings(currentFilter); 
 
         } catch (err) {
           showCancelError(err.message);
@@ -618,10 +605,10 @@
       });
     }
 
-    // --- Initialize Page ---
+    // --- Initialize Page (Unchanged) ---
     (async function init() {
       wireInteractions();
-      await loadBookings('all'); // Load "All" bookings on page load
+      await loadBookings('all'); 
     })();
   </script>
 </body>
