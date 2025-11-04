@@ -273,7 +273,8 @@
 
   <div class="flex h-screen bg-gray-100">
 
-    <aside id="sidebar" class="w-64 flex-shrink-0 bg-white shadow-lg hidden lg:flex flex-col">
+    <aside id="sidebar"
+      class="w-64 flex-shrink-0 bg-white shadow-lg flex flex-col fixed inset-y-0 left-0 z-30 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static">
       <div class="h-16 flex items-center justify-center border-b">
         <h1 class="text-2xl font-bold text-gray-800">Sharing Yatra</h1>
       </div>
@@ -321,6 +322,9 @@
         </a>
       </div>
     </aside>
+
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden"></div>
+
     <div class="flex-1 flex flex-col overflow-hidden">
       <header class="bg-white shadow-sm h-16 flex justify-between items-center px-4 lg:hidden">
         <h1 class="text-2xl font-bold text-gray-800">Sharing Yatra</h1>
@@ -480,7 +484,7 @@
               <button id="backToFormBtn" class="text-sm text-blue-600 hover:underline">&larr; Back to Edit</button>
             </div>
             <div id="agencyGrid" class="space-y-4 mt-4">
-            </div>
+              </div>
           </div>
 
           <datalist id="station-list"></datalist>
@@ -489,6 +493,7 @@
       </main>
     </div>
   </div>
+
   <div id="bookingModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
     <div id="modalOverlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
@@ -532,7 +537,7 @@
     </div>
   </div>
   <script>
-    // --- All Consts and Functions from booking.html ---
+    // --- All Consts and Functions from booking.html (Unchanged) ---
     const bookingForm = document.getElementById('bookingForm');
     const submitButton = document.getElementById('submitButton');
     const buttonText = document.getElementById('buttonText');
@@ -569,8 +574,9 @@
     let calculatedDistance = 0;
     let tempBookingDetails = {};
     let tempSelectedVehicle = {};
-const API_BASE = "https://sharing-yatra-college.vercel.app";
+    const API_BASE = "https://sharing-yatra-college.vercel.app";
 
+    // --- All functions (getDiscountPercentage, showModal, etc.) are unchanged ---
     function getDiscountPercentage(distance) {
       if (distance <= 0) return 0;
       if (distance <= 5) return 0.02; // 2% for 1-5 km
@@ -601,67 +607,67 @@ const API_BASE = "https://sharing-yatra-college.vercel.app";
       modalMessageArea.innerHTML = `<p class="p-3 text-sm rounded-lg bg-red-50 text-red-700">${message}</p>`;
     }
 
-   // REPLACE your old populateModal function with this one
-function populateModal(details) {
-  modalVehicleDetails.innerHTML = '';
-  function createEl(tag, className, text) {
-    const el = document.createElement(tag);
-    el.className = className;
-    el.textContent = text;
-    return el;
-  }
-  function createRow(label, value) {
-    const row = document.createElement('div');
-    row.className = 'flex justify-between';
-    const labelSpan = document.createElement('span');
-    labelSpan.className = 'text-gray-500';
-    labelSpan.textContent = label;
-    const valueStrong = document.createElement('strong');
-    valueStrong.className = 'text-gray-800';
-    valueStrong.textContent = value;
-    row.append(labelSpan, valueStrong);
-    return row;
-  }
-  const divTextCenter = document.createElement('div');
-  divTextCenter.className = 'text-center';
-  divTextCenter.append(
-    createEl('h4', 'text-2xl font-bold text-gray-900', details.vehicleName),
-    createEl('p', 'text-sm text-gray-500', details.vehicleInfo)
-  );
+    // REPLACE your old populateModal function with this one
+    function populateModal(details) {
+      modalVehicleDetails.innerHTML = '';
+      function createEl(tag, className, text) {
+        const el = document.createElement(tag);
+        el.className = className;
+        el.textContent = text;
+        return el;
+      }
+      function createRow(label, value) {
+        const row = document.createElement('div');
+        row.className = 'flex justify-between';
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'text-gray-500';
+        labelSpan.textContent = label;
+        const valueStrong = document.createElement('strong');
+        valueStrong.className = 'text-gray-800';
+        valueStrong.textContent = value;
+        row.append(labelSpan, valueStrong);
+        return row;
+      }
+      const divTextCenter = document.createElement('div');
+      divTextCenter.className = 'text-center';
+      divTextCenter.append(
+        createEl('h4', 'text-2xl font-bold text-gray-900', details.vehicleName),
+        createEl('p', 'text-sm text-gray-500', details.vehicleInfo)
+      );
 
-  // --- UPDATED PRICE DISPLAY ---
-  const divPriceCenter = document.createElement('div');
-  divPriceCenter.className = 'text-center mt-4';
-  divPriceCenter.append(
-    createEl('p', 'text-4xl font-extrabold text-indigo-600', details.price) // This is the final price
-  );
+      // --- UPDATED PRICE DISPLAY ---
+      const divPriceCenter = document.createElement('div');
+      divPriceCenter.className = 'text-center mt-4';
+      divPriceCenter.append(
+        createEl('p', 'text-4xl font-extrabold text-indigo-600', details.price) // This is the final price
+      );
 
-  // Add discount details if available
-  if (details.basePrice && details.discount) {
-    const priceDetail = document.createElement('p');
-    priceDetail.className = 'text-sm text-gray-500';
-    priceDetail.innerHTML = `
-        Original: <span class="line-through">${details.basePrice}</span>
-        - Discount: <span class="font-semibold text-green-600">${details.discount}</span>
-      `;
-    divPriceCenter.append(priceDetail);
-  } else {
-    divPriceCenter.append(
-      createEl('p', 'text-sm text-gray-500', 'Approx. total fare')
-    );
-  }
-  // --- END UPDATED PRICE DISPLAY ---
+      // Add discount details if available
+      if (details.basePrice && details.discount) {
+        const priceDetail = document.createElement('p');
+        priceDetail.className = 'text-sm text-gray-500';
+        priceDetail.innerHTML = `
+          Original: <span class="line-through">${details.basePrice}</span>
+          - Discount: <span class="font-semibold text-green-600">${details.discount}</span>
+        `;
+        divPriceCenter.append(priceDetail);
+      } else {
+        divPriceCenter.append(
+          createEl('p', 'text-sm text-gray-500', 'Approx. total fare')
+        );
+      }
+      // --- END UPDATED PRICE DISPLAY ---
 
-  const divDetails = document.createElement('div');
-  divDetails.className = 'space-y-2 pt-4 border-t border-gray-100 mt-4';
-  divDetails.append(
-    createRow('From:', details.from),
-    createRow('To:', details.to),
-    createRow('Distance:', `${details.distance} km`),
-    createRow('Agency:', details.agencyName)
-  );
-  modalVehicleDetails.append(divTextCenter, divPriceCenter, divDetails);
-}
+      const divDetails = document.createElement('div');
+      divDetails.className = 'space-y-2 pt-4 border-t border-gray-100 mt-4';
+      divDetails.append(
+        createRow('From:', details.from),
+        createRow('To:', details.to),
+        createRow('Distance:', `${details.distance} km`),
+        createRow('Agency:', details.agencyName)
+      );
+      modalVehicleDetails.append(divTextCenter, divPriceCenter, divDetails);
+    }
     closeModalBtn.addEventListener('click', closeModal);
     cancelBookingBtn.addEventListener('click', closeModal);
     modalOverlay.addEventListener('click', closeModal);
@@ -707,11 +713,12 @@ function populateModal(details) {
       }
     }
 
-async function displayAgencyResults() {
+    async function displayAgencyResults() {
       setLoading(true, 'Searching Agencies...');
       agencyGrid.innerHTML = '';
       const pickupAddress = tempBookingDetails.pickupAddress;
       try {
+        // --- API URL Unchanged ---
         const response = await fetch(`/api/search-rides?address=${encodeURIComponent(pickupAddress)}`);
         if (!response.ok) {
           let errorMsg = 'Could not find agency rides.';
@@ -841,104 +848,105 @@ async function displayAgencyResults() {
     }
 
 
-   // REPLACE your old fetchAndDisplaySharedRides function with this one
-async function fetchAndDisplaySharedRides(details) {
-  savedRidesList.innerHTML = '';
-  savedRidesContainer.classList.add('hidden');
-  let searchDate, searchTime;
-  if (details.bookingType === 'schedule_and_save' && details.date && details.time) {
-    searchDate = details.date;
-    searchTime = details.time;
-  } else {
-    const now = new Date();
-    searchDate = now.toISOString().split('T')[0];
-    searchTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  }
-  const queryParams = new URLSearchParams({
-    from: details.from,
-    to: details.to,
-    date: searchDate,
-    time: searchTime
-  });
-  const url = `/api/matched-saved-rides?${queryParams.toString()}`;
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!data.success || !data.rides || data.rides.length === 0) {
-      return;
-    }
-    savedRidesContainer.classList.remove('hidden');
-    data.rides.forEach(ride => {
-      const agencyName = ride.agency ? ride.agency.name : 'Private Ride';
-      const dateTime = `${ride.date || ''} ${ride.time || ''}`.trim();
-      const fromStation = ride.stations.find(s => s.name.toLowerCase() === details.from.toLowerCase());
-      const rideTimeInfo = fromStation ?
-        `<span class="font-semibold text-blue-700">Departs ${fromStation.name} at ${fromStation.time}</span>` :
-        `${ride.from} → ${ride.to}`;
-      
-      const el = document.createElement('div');
-      el.className = 'p-3 border border-gray-200 rounded-lg flex justify-between items-start';
-      const leftDiv = document.createElement('div');
-      leftDiv.className = 'flex-1';
-      const agencyText = document.createElement('div');
-      agencyText.className = 'text-sm text-gray-700';
-      agencyText.textContent = `${agencyName} • ${ride.vehicle ? ride.vehicle.vehicle_name : ''}`;
-      const routeDiv = document.createElement('div');
-      routeDiv.className = 'font-semibold';
-      routeDiv.textContent = `${ride.from} → ${ride.to} `;
-      const dateSpan = document.createElement('span');
-      dateSpan.className = 'text-xs text-gray-500';
-      dateSpan.textContent = `(${dateTime})`;
-      routeDiv.appendChild(dateSpan);
-      const timeInfoDiv = document.createElement('div');
-      timeInfoDiv.className = 'text-sm text-gray-500 mt-1';
-      timeInfoDiv.innerHTML = rideTimeInfo;
-      leftDiv.append(agencyText, routeDiv, timeInfoDiv);
-      
-      const rightDiv = document.createElement('div');
-      rightDiv.className = 'ml-4 text-right';
-      const joinBtn = document.createElement('button');
-      joinBtn.className = 'join-saved-btn text-xs bg-blue-600 text-white font-semibold py-1 px-3 rounded-full';
-      joinBtn.dataset.parentId = ride.parentBookingId;
-      joinBtn.textContent = 'Request to Join';
-      
-      const fareDiv = document.createElement('div');
-      fareDiv.className = 'text-xs text-gray-500 mt-2';
-
-      // --- DISCOUNT LOGIC FOR JOIN RIDE ---
-      const distanceForFare = parseFloat(calculatedDistance);
-      const rate = ride.vehicle ? parseFloat(ride.vehicle.rate_per_km) : NaN;
-
-      if (!isNaN(distanceForFare) && distanceForFare > 0 && !isNaN(rate) && rate > 0) {
-          const basePrice = distanceForFare * rate;
-          const discountPercentage = getDiscountPercentage(distanceForFare);
-          const discountAmount = basePrice * discountPercentage;
-          const finalFare = basePrice - discountAmount;
-
-          joinBtn.dataset.fare = finalFare.toFixed(0);
-          joinBtn.dataset.discount = discountAmount.toFixed(2);
-          
-          fareDiv.innerHTML = `
-            <span class="font-semibold text-gray-800">₹${finalFare.toFixed(0)}</span>
-            <span class="line-through ml-1">₹${basePrice.toFixed(0)}</span>
-          `;
+    // REPLACE your old fetchAndDisplaySharedRides function with this one
+    async function fetchAndDisplaySharedRides(details) {
+      savedRidesList.innerHTML = '';
+      savedRidesContainer.classList.add('hidden');
+      let searchDate, searchTime;
+      if (details.bookingType === 'schedule_and_save' && details.date && details.time) {
+        searchDate = details.date;
+        searchTime = details.time;
       } else {
-          const fare = ride.fare || 0;
-          joinBtn.dataset.fare = fare;
-          joinBtn.dataset.discount = 0;
-          fareDiv.textContent = fare ? `₹${fare}` : '—';
+        const now = new Date();
+        searchDate = now.toISOString().split('T')[0];
+        searchTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
       }
-      // --- END DISCOUNT LOGIC ---
-      
-      rightDiv.append(joinBtn, fareDiv);
-      el.append(leftDiv, rightDiv);
-      savedRidesList.appendChild(el);
-    });
-  } catch (err) {
-    console.error("Error loading saved rides:", err);
-    savedRidesContainer.classList.add('hidden');
-  }
-}
+      const queryParams = new URLSearchParams({
+        from: details.from,
+        to: details.to,
+        date: searchDate,
+        time: searchTime
+      });
+      // --- API URL Unchanged ---
+      const url = `/api/matched-saved-rides?${queryParams.toString()}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.success || !data.rides || data.rides.length === 0) {
+          return;
+        }
+        savedRidesContainer.classList.remove('hidden');
+        data.rides.forEach(ride => {
+          const agencyName = ride.agency ? ride.agency.name : 'Private Ride';
+          const dateTime = `${ride.date || ''} ${ride.time || ''}`.trim();
+          const fromStation = ride.stations.find(s => s.name.toLowerCase() === details.from.toLowerCase());
+          const rideTimeInfo = fromStation ?
+            `<span class="font-semibold text-blue-700">Departs ${fromStation.name} at ${fromStation.time}</span>` :
+            `${ride.from} → ${ride.to}`;
+          
+          const el = document.createElement('div');
+          el.className = 'p-3 border border-gray-200 rounded-lg flex justify-between items-start';
+          const leftDiv = document.createElement('div');
+          leftDiv.className = 'flex-1';
+          const agencyText = document.createElement('div');
+          agencyText.className = 'text-sm text-gray-700';
+          agencyText.textContent = `${agencyName} • ${ride.vehicle ? ride.vehicle.vehicle_name : ''}`;
+          const routeDiv = document.createElement('div');
+          routeDiv.className = 'font-semibold';
+          routeDiv.textContent = `${ride.from} → ${ride.to} `;
+          const dateSpan = document.createElement('span');
+          dateSpan.className = 'text-xs text-gray-500';
+          dateSpan.textContent = `(${dateTime})`;
+          routeDiv.appendChild(dateSpan);
+          const timeInfoDiv = document.createElement('div');
+          timeInfoDiv.className = 'text-sm text-gray-500 mt-1';
+          timeInfoDiv.innerHTML = rideTimeInfo;
+          leftDiv.append(agencyText, routeDiv, timeInfoDiv);
+          
+          const rightDiv = document.createElement('div');
+          rightDiv.className = 'ml-4 text-right';
+          const joinBtn = document.createElement('button');
+          joinBtn.className = 'join-saved-btn text-xs bg-blue-600 text-white font-semibold py-1 px-3 rounded-full';
+          joinBtn.dataset.parentId = ride.parentBookingId;
+          joinBtn.textContent = 'Request to Join';
+          
+          const fareDiv = document.createElement('div');
+          fareDiv.className = 'text-xs text-gray-500 mt-2';
+
+          // --- DISCOUNT LOGIC FOR JOIN RIDE ---
+          const distanceForFare = parseFloat(calculatedDistance);
+          const rate = ride.vehicle ? parseFloat(ride.vehicle.rate_per_km) : NaN;
+
+          if (!isNaN(distanceForFare) && distanceForFare > 0 && !isNaN(rate) && rate > 0) {
+              const basePrice = distanceForFare * rate;
+              const discountPercentage = getDiscountPercentage(distanceForFare);
+              const discountAmount = basePrice * discountPercentage;
+              const finalFare = basePrice - discountAmount;
+
+              joinBtn.dataset.fare = finalFare.toFixed(0);
+              joinBtn.dataset.discount = discountAmount.toFixed(2);
+              
+              fareDiv.innerHTML = `
+                <span class="font-semibold text-gray-800">₹${finalFare.toFixed(0)}</span>
+                <span class="line-through ml-1">₹${basePrice.toFixed(0)}</span>
+              `;
+          } else {
+              const fare = ride.fare || 0;
+              joinBtn.dataset.fare = fare;
+              joinBtn.dataset.discount = 0;
+              fareDiv.textContent = fare ? `₹${fare}` : '—';
+          }
+          // --- END DISCOUNT LOGIC ---
+          
+          rightDiv.append(joinBtn, fareDiv);
+          el.append(leftDiv, rightDiv);
+          savedRidesList.appendChild(el);
+        });
+      } catch (err) {
+        console.error("Error loading saved rides:", err);
+        savedRidesContainer.classList.add('hidden');
+      }
+    }
     bookingForm.addEventListener('submit', function (event) {
       event.preventDefault();
       messageArea.innerHTML = '';
@@ -971,46 +979,46 @@ async function fetchAndDisplaySharedRides(details) {
       displayAgencyResults();
     });
 
-   // REPLACE your old agencyGrid 'click' listener with this one
-agencyGrid.addEventListener('click', async function (event) {
-  if (!event.target.classList.contains('book-vehicle-btn')) return;
-  
-  const selectedButton = event.target;
-  const vehicleItem = selectedButton.closest('.vehicle-item');
-  const agencyCard = selectedButton.closest('.agency-card');
-  // Read data from the button and vehicle item
-  const vehicleName = vehicleItem.querySelector('.font-semibold').textContent;
-  const vehicleInfo = vehicleItem.querySelector('.text-xs').textContent;
-  const agencyName = agencyCard.querySelector('h3').textContent;
+    // REPLACE your old agencyGrid 'click' listener with this one
+    agencyGrid.addEventListener('click', async function (event) {
+      if (!event.target.classList.contains('book-vehicle-btn')) return;
+      
+      const selectedButton = event.target;
+      const vehicleItem = selectedButton.closest('.vehicle-item');
+      const agencyCard = selectedButton.closest('.agency-card');
+      // Read data from the button and vehicle item
+      const vehicleName = vehicleItem.querySelector('.font-semibold').textContent;
+      const vehicleInfo = vehicleItem.querySelector('.text-xs').textContent;
+      const agencyName = agencyCard.querySelector('h3').textContent;
 
-  // Read ALL data attributes from the button
-  const basePrice = selectedButton.dataset.basePrice;
-  const discount = selectedButton.dataset.discount;
-  const finalFare = selectedButton.dataset.fare;
+      // Read ALL data attributes from the button
+      const basePrice = selectedButton.dataset.basePrice;
+      const discount = selectedButton.dataset.discount;
+      const finalFare = selectedButton.dataset.fare;
 
-  // Store details for final booking
-  tempSelectedVehicle = {
-    agencyId: selectedButton.dataset.agencyId,
-    vehicleId: selectedButton.dataset.vehicleId,
-    fare: finalFare,
-    discount: discount // <-- ADDED DISCOUNT
-  };
+      // Store details for final booking
+      tempSelectedVehicle = {
+        agencyId: selectedButton.dataset.agencyId,
+        vehicleId: selectedButton.dataset.vehicleId,
+        fare: finalFare,
+        discount: discount // <-- ADDED DISCOUNT
+      };
 
-  // Populate modal with new discount info
-  populateModal({
-    vehicleName,
-    vehicleInfo,
-    price: `₹${finalFare}`, // Final price
-    basePrice: `₹${basePrice}`, // Original price
-    discount: `₹${parseFloat(discount).toFixed(2)}`, // Discount amount
-    agencyName,
-    from: tempBookingDetails.from,
-    to: tempBookingDetails.to,
-    distance: tempBookingDetails.totalDistance
-  });
+      // Populate modal with new discount info
+      populateModal({
+        vehicleName,
+        vehicleInfo,
+        price: `₹${finalFare}`, // Final price
+        basePrice: `₹${basePrice}`, // Original price
+        discount: `₹${parseFloat(discount).toFixed(2)}`, // Discount amount
+        agencyName,
+        from: tempBookingDetails.from,
+        to: tempBookingDetails.to,
+        distance: tempBookingDetails.totalDistance
+      });
 
-  showModal();
-});
+      showModal();
+    });
     confirmBookingBtn.addEventListener('click', async () => {
       setModalLoading(true);
       modalMessageArea.innerHTML = '';
@@ -1019,6 +1027,7 @@ agencyGrid.addEventListener('click', async function (event) {
         ...tempSelectedVehicle
       };
       try {
+        // --- API URL Unchanged ---
         const response = await fetch(`${API_BASE}/api/bookings`, {
           method: 'POST',
           headers: {
@@ -1112,82 +1121,83 @@ agencyGrid.addEventListener('click', async function (event) {
     }
 
     // REPLACE your old 'join-saved-btn' click listener with this one
-document.addEventListener('click', async function (e) {
-  if (!e.target.classList.contains('join-saved-btn')) {
-    return;
-  }
-  messageArea.innerHTML = '';
-  const btn = e.target;
-  btn.disabled = true;
-  const parentId = btn.dataset.parentId;
+    document.addEventListener('click', async function (e) {
+      if (!e.target.classList.contains('join-saved-btn')) {
+        return;
+      }
+      messageArea.innerHTML = '';
+      const btn = e.target;
+      btn.disabled = true;
+      const parentId = btn.dataset.parentId;
 
-  // --- UPDATED FARE/DISCOUNT LOGIC ---
-  // Read fare and discount directly from the button's dataset
-  const calculatedJoinFare = btn.dataset.fare || 0;
-  const calculatedJoinDiscount = btn.dataset.discount || 0;
-  // --- END UPDATED LOGIC ---
+      // --- UPDATED FARE/DISCOUNT LOGIC ---
+      // Read fare and discount directly from the button's dataset
+      const calculatedJoinFare = btn.dataset.fare || 0;
+      const calculatedJoinDiscount = btn.dataset.discount || 0;
+      // --- END UPDATED LOGIC ---
 
-  if (!parentId) {
-    alert("Error: Could not find ride ID. Please refresh.");
-    btn.disabled = false;
-    return;
-  }
-  updateHiddenPickupAddress();
-  const currentPickupAddress = pickupAddressInput.value;
-  const currentArea = areaInput.value;
-  const currentCity = cityInput.value;
-  if (!currentPickupAddress) {
-    alert("Please fill pickup address (Area / City) in the main form before requesting to join.");
-    btn.disabled = false;
-    return;
-  }
-  const userFromValue = fromInput.value.trim();
-  const userToValue = toInput.value.trim();
-  if (!userFromValue || !userToValue) {
-    alert("Please ensure 'From' and 'To' stations are selected in the main form before joining.");
-    btn.disabled = false;
-    return;
-  }
-  try {
-    // --- UPDATED PAYLOAD ---
-    const payload = {
-      parentBookingId: parentId,
-      pickupAddress: currentPickupAddress,
-      area: currentArea,
-      city: currentCity,
-      userFrom: userFromValue,
-      userTo: userToValue,
-      userDistance: calculatedDistance,
-      calculatedFare: calculatedJoinFare,
-      discount: calculatedJoinDiscount // <-- ADDED DISCOUNT
-    };
-    // --- END UPDATED PAYLOAD ---
+      if (!parentId) {
+        alert("Error: Could not find ride ID. Please refresh.");
+        btn.disabled = false;
+        return;
+      }
+      updateHiddenPickupAddress();
+      const currentPickupAddress = pickupAddressInput.value;
+      const currentArea = areaInput.value;
+      const currentCity = cityInput.value;
+      if (!currentPickupAddress) {
+        alert("Please fill pickup address (Area / City) in the main form before requesting to join.");
+        btn.disabled = false;
+        return;
+      }
+      const userFromValue = fromInput.value.trim();
+      const userToValue = toInput.value.trim();
+      if (!userFromValue || !userToValue) {
+        alert("Please ensure 'From' and 'To' stations are selected in the main form before joining.");
+        btn.disabled = false;
+        return;
+      }
+      try {
+        // --- UPDATED PAYLOAD ---
+        const payload = {
+          parentBookingId: parentId,
+          pickupAddress: currentPickupAddress,
+          area: currentArea,
+          city: currentCity,
+          userFrom: userFromValue,
+          userTo: userToValue,
+          userDistance: calculatedDistance,
+          calculatedFare: calculatedJoinFare,
+          discount: calculatedJoinDiscount // <-- ADDED DISCOUNT
+        };
+        // --- END UPDATED PAYLOAD ---
 
-    const res = await fetch(`${API_BASE}/api/join-saved-ride`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
+        // --- API URL Unchanged ---
+        const res = await fetch(`${API_BASE}/api/join-saved-ride`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || 'Failed to send join request');
+        }
+        displayMessage(`<strong class="text-green-800">Join request sent!</strong><div class="text-sm text-gray-600 mt-1">Request Booking ID: <code>${data.bookingId}</code></div>`, 'success');
+        btn.textContent = "Requested";
+        btn.classList.remove('bg-blue-600');
+        btn.classList.add('bg-gray-400');
+        btn.disabled = true;
+        agencyResultsContainer.classList.add('hidden');
+        savedRidesContainer.classList.add('hidden');
+        bookingForm.classList.remove('hidden');
+      } catch (err) {
+        console.error("Join request error:", err);
+        displayMessage(err.message || 'Could not send join request', 'error');
+        btn.disabled = false;
+      }
     });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.message || 'Failed to send join request');
-    }
-    displayMessage(`<strong class="text-green-800">Join request sent!</strong><div class="text-sm text-gray-600 mt-1">Request Booking ID: <code>${data.bookingId}</code></div>`, 'success');
-    btn.textContent = "Requested";
-    btn.classList.remove('bg-blue-600');
-    btn.classList.add('bg-gray-400');
-    btn.disabled = true;
-    agencyResultsContainer.classList.add('hidden');
-    savedRidesContainer.classList.add('hidden');
-    bookingForm.classList.remove('hidden');
-  } catch (err) {
-    console.error("Join request error:", err);
-    displayMessage(err.message || 'Could not send join request', 'error');
-    btn.disabled = false;
-  }
-});
     function displayMessage(message, type) {
       messageArea.innerHTML = '';
       const tempDiv = document.createElement('div');
@@ -1209,20 +1219,40 @@ document.addEventListener('click', async function (e) {
     cityInput.addEventListener('change', updateHiddenPickupAddress);
 
 
-    // --- Copied from dashboard/profile: Mobile Toggle & Logout ---
+    // --- 
+    // FIX 3: Replaced with responsive sidebar JavaScript
+    // ---
     function wireInteractions() {
-      // Mobile sidebar toggle
-      const toggle = document.getElementById("mobileToggle");
+      // --- NEW: Mobile Sidebar Toggle Logic ---
+      const toggleBtn = document.getElementById("mobileToggle");
       const sidebar = document.getElementById("sidebar");
-      if (toggle && sidebar) {
-        toggle.addEventListener("click", () => {
-          const isHidden = sidebar.classList.contains("hidden");
-          sidebar.classList.toggle("hidden", !isHidden);
-          sidebar.classList.toggle("flex", isHidden);
-        });
+      const backdrop = document.getElementById("sidebarBackdrop");
+
+      function openSidebar() {
+        sidebar.classList.remove("-translate-x-full"); // Slides sidebar in
+        backdrop.classList.remove("hidden"); // Shows backdrop
       }
 
-      // Logout
+      function closeSidebar() {
+        sidebar.classList.add("-translate-x-full"); // Slides sidebar out
+        backdrop.classList.add("hidden"); // Hides backdrop
+      }
+
+      if (toggleBtn && sidebar && backdrop) {
+        // Toggle button click
+        toggleBtn.addEventListener("click", () => {
+          const isOpen = !sidebar.classList.contains("-translate-x-full");
+          if (isOpen) {
+            closeSidebar();
+          } else {
+            openSidebar();
+          }
+        });
+        // Backdrop click
+        backdrop.addEventListener("click", closeSidebar);
+      }
+
+      // --- Logout (Unchanged, respects API_BASE) ---
       const logoutBtn = document.getElementById("logoutBtn");
       if (logoutBtn) {
         logoutBtn.addEventListener("click", async (e) => {
