@@ -920,12 +920,31 @@
           if (!isNaN(distanceForFare) && distanceForFare > 0 && !isNaN(rate) && rate > 0) {
               const basePrice = distanceForFare * rate;
               const discountPercentage = getDiscountPercentage(distanceForFare);
-              const discountAmount = basePrice * discountPercentage;
-              const finalFare = basePrice - discountAmount;
+              // const discountAmount = basePrice * discountPercentage;
+              // const finalFare = basePrice - discountAmount;
 
-              joinBtn.dataset.fare = finalFare.toFixed(0);
-              joinBtn.dataset.discount = discountAmount.toFixed(2);
-              
+              // joinBtn.dataset.fare = finalFare.toFixed(0);
+              // joinBtn.dataset.discount = discountAmount.toFixed(2);
+
+const firstDiscountAmount = basePrice * discountPercentage; // This is your first discount
+        
+        // 1. Calculate the price after the first discount
+          const priceAfterFirstDiscount = basePrice - firstDiscountAmount;
+        
+        // 2. Calculate the additional 10% discount on the new price
+        const additionalDiscountAmount = priceAfterFirstDiscount * 0.20; 
+        
+        // 3. This is your corrected final fare
+          const finalFare = priceAfterFirstDiscount - additionalDiscountAmount; 
+        
+        // 4. Calculate the total combined discount amount
+        const totalDiscountAmount = firstDiscountAmount + additionalDiscountAmount;
+
+          joinBtn.dataset.fare = finalFare.toFixed(0);
+          joinBtn.dataset.discount = totalDiscountAmount.toFixed(2); // Store the total discount
+
+
+            
               fareDiv.innerHTML = `
                 <span class="font-semibold text-gray-800">₹${finalFare.toFixed(0)}</span>
                 <span class="line-through ml-1">₹${basePrice.toFixed(0)}</span>
